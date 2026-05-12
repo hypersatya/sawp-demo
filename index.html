@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arc Swap | DeFi Interface</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
+    
+    <style>
+        body { background-color: #000000; color: white; font-family: sans-serif; }
+        .sidebar-item:hover { background-color: #1a1a1a; }
+        .active-nav { background-color: #1a1a1a; border-radius: 12px; }
+        .swap-card { background-color: #0f0f0f; border: 1px solid #1f1f1f; }
+        .input-group { background-color: #080808; border: 1px solid #1a1a1a; }
+        .neon-btn { background-color: #d4ff33; color: black; transition: 0.3s; }
+        .neon-btn:hover { background-color: #b8e62d; transform: scale(1.02); }
+    </style>
+</head>
+<body class="flex min-h-screen">
+
+    <aside class="w-64 border-r border-gray-900 p-6 flex flex-col justify-between hidden md:flex">
+        <div>
+            <div class="flex items-center gap-2 mb-10">
+                <div class="w-8 h-8 bg-[#d4ff33] rounded-sm"></div>
+                <h1 class="text-xl font-bold tracking-wider">CITADAO</h1>
+            </div>
+            
+            <nav class="space-y-4 text-gray-400">
+                <div class="sidebar-item p-3 cursor-pointer flex items-center gap-3"><span class="text-lg">💼</span> My Portfolio</div>
+                <div class="sidebar-item p-3 cursor-pointer flex items-center gap-3"><span class="text-lg">🏰</span> Properties</div>
+                <div class="active-nav p-3 cursor-pointer flex items-center gap-3 text-white"><span class="text-lg">⇌</span> Swap</div>
+                <div class="sidebar-item p-3 cursor-pointer flex items-center gap-3"><span class="text-lg">🌊</span> Liquidity Pools</div>
+                <div class="sidebar-item p-3 cursor-pointer flex items-center gap-3"><span class="text-lg">🪄</span> Stake</div>
+                <div class="sidebar-item p-3 cursor-pointer flex items-center gap-3"><span class="text-lg">🔒</span> Lockup Tokens</div>
+                <div class="sidebar-item p-3 cursor-pointer flex items-center gap-3"><span class="text-lg">🕒</span> History</div>
+            </nav>
+        </div>
+        
+        <div class="text-gray-500 text-sm cursor-pointer hover:text-white flex items-center gap-2">
+            <span>❓</span> FAQs
+        </div>
+    </aside>
+
+    <main class="flex-1 p-8">
+        <header class="flex justify-between items-center mb-12">
+            <h2 class="text-2xl font-semibold">Swap</h2>
+            <div class="flex items-center gap-4">
+                <button class="p-2 text-gray-400">🔍</button>
+                <button class="p-2 text-gray-400">🔔</button>
+                <button id="connectWallet" class="bg-[#1a1a1a] px-4 py-2 rounded-full text-sm border border-gray-800 hover:bg-gray-800">
+                    Connect Wallet
+                </button>
+            </div>
+        </header>
+
+        <div class="flex justify-center mt-10">
+            <div class="w-full max-w-md swap-card p-6 rounded-[32px]">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-medium">Swap</h3>
+                    <div class="flex gap-2">
+                        <span class="cursor-pointer">📊</span>
+                        <span class="cursor-pointer">⚙️</span>
+                    </div>
+                </div>
+
+                <div class="input-group p-4 rounded-2xl mb-2">
+                    <div class="flex justify-between text-xs text-gray-500 mb-2">
+                        <span>You pay</span>
+                        <span>Balance: <span id="usdcBalance">0</span></span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <input id="inputAmount" type="number" placeholder="0.00" class="bg-transparent text-3xl outline-none w-1/2 font-semibold">
+                        <button class="flex items-center gap-2 bg-[#1a1a1a] px-3 py-1.5 rounded-xl border border-gray-800">
+                            <div class="w-5 h-5 bg-blue-500 rounded-full"></div>
+                            <span class="font-medium text-sm">USDC</span>
+                            <span class="text-[10px]">▼</span>
+                        </button>
+                    </div>
+                    <div class="flex gap-2 mt-4">
+                        <button class="flex-1 bg-[#121212] py-1.5 rounded-lg text-[10px] text-gray-500 hover:text-white">15%</button>
+                        <button class="flex-1 bg-[#121212] py-1.5 rounded-lg text-[10px] text-gray-500 hover:text-white">25%</button>
+                        <button class="flex-1 bg-[#121212] py-1.5 rounded-lg text-[10px] text-gray-500 hover:text-white border border-gray-800">50%</button>
+                        <button class="flex-1 bg-[#121212] py-1.5 rounded-lg text-[10px] text-gray-500 hover:text-white">75%</button>
+                        <button class="flex-1 bg-[#121212] py-1.5 rounded-lg text-[10px] text-gray-500 hover:text-white">100%</button>
+                    </div>
+                </div>
+
+                <div class="flex justify-center -my-5 relative z-10">
+                    <div class="bg-[#1a1a1a] p-2 rounded-xl border-[4px] border-[#0f0f0f] cursor-pointer">
+                        <span class="text-xs">↓</span>
+                    </div>
+                </div>
+
+                <div class="input-group p-4 rounded-2xl mt-2">
+                    <div class="flex justify-between text-xs text-gray-500 mb-2">
+                        <span>You receive</span>
+                        <span>Balance: 0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <input id="outputAmount" type="text" placeholder="0.00" readonly class="bg-transparent text-3xl outline-none w-1/2 font-semibold text-gray-300">
+                        <button class="flex items-center gap-2 bg-[#1a1a1a] px-3 py-1.5 rounded-xl border border-gray-800">
+                            <div class="w-5 h-5 bg-[#d4ff33] rounded-full"></div>
+                            <span class="font-medium text-sm uppercase">EURC</span>
+                            <span class="text-[10px]">▼</span>
+                        </button>
+                    </div>
+                    <div class="text-[10px] text-gray-600 mt-2">Min. received: <span id="minReceived">0.00</span></div>
+                </div>
+
+                <div class="mt-6">
+                    <div class="text-center text-[10px] text-gray-500 mb-4">
+                        1 USDC = <span id="rateDisplay">0.92</span> EURC ⇅
+                    </div>
+                    <button id="swapBtn" class="w-full neon-btn py-4 rounded-2xl font-bold text-sm uppercase tracking-wide">
+                        Connect Wallet to Swap
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
